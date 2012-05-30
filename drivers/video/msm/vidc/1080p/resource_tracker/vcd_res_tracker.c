@@ -25,7 +25,6 @@
 #include "vidc.h"
 #include "vcd_res_tracker.h"
 
-#define PIL_FW_BASE_ADDR 0xafe00000
 #define PIL_FW_SIZE 0x200000
 
 static bool is_encoding = false;
@@ -175,6 +174,7 @@ static int res_trk_pmem_alloc
 {
 	u32 alloc_size;
 	struct ddl_context *ddl_context;
+	unsigned long fw_addr;
 	int rc = 0;
 	DBG_PMEM("\n%s() IN: Requested alloc size(%u)", __func__, (u32)sz);
 	if (!addr) {
@@ -207,8 +207,9 @@ static int res_trk_pmem_alloc
 				goto bail_out;
 			}
 		} else {
+			fw_addr = resource_context.vidc_platform_data->fw_addr;
 			addr->alloc_handle = NULL;
-			addr->alloced_phys_addr = PIL_FW_BASE_ADDR;
+			addr->alloced_phys_addr = fw_addr;
 			addr->buffer_size = sz;
 		}
 	} else {
@@ -941,6 +942,10 @@ int res_trk_open_secure_session()
 		}
 		msm_ion_secure_heap(ION_HEAP(resource_context.memtype));
 		msm_ion_secure_heap(ION_HEAP(resource_context.cmd_mem_type));
+
+		if (resource_context.vidc_platform_data->secure_wb_heap)
+			msm_ion_secure_heap(ION_HEAP(ION_CP_WB_HEAP_ID));
+
 		res_trk_disable_iommu_clocks();
 		mutex_unlock(&resource_context.secure_lock);
 	}
@@ -963,6 +968,10 @@ int res_trk_close_secure_session()
 		}
 		msm_ion_unsecure_heap(ION_HEAP(resource_context.cmd_mem_type));
 		msm_ion_unsecure_heap(ION_HEAP(resource_context.memtype));
+
+		if (resource_context.vidc_platform_data->secure_wb_heap)
+			msm_ion_unsecure_heap(ION_HEAP(ION_CP_WB_HEAP_ID));
+
 		res_trk_disable_iommu_clocks();
 		mutex_unlock(&resource_context.secure_lock);
 	}

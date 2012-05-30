@@ -2709,8 +2709,9 @@ struct msm_vidc_platform_data vidc_platform_data = {
 	.enable_ion = 1,
 	.cp_enabled = 0,
 	.disable_dmx = 0,
-	.disable_fullhd = 0
-
+	.disable_fullhd = 0,
+	.secure_wb_heap = 1,
+	.fw_addr = 0x38000000,
 };
 
 struct platform_device msm_device_vidc = {
