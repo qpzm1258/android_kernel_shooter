@@ -729,6 +729,8 @@ config MACH_SHOOTER_CT
         depends on ARCH_MSM8X60
         default n
         bool "shooter_ct"
+        select SMP_PARALLEL_START
+        select FB_MSM_MIPI_DSI
         help
           Support for the Shooter_CT device.
 
